@@ -1,6 +1,6 @@
 # `Dash`-based query stats plotter for `pi-hole` data
 
-![](https://raw.githubusercontent.com/pi-hole/pi-hole/master/demo/demo.png)
+![](demo/demo.png)
 
 ## Usage
 
