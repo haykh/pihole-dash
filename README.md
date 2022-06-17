@@ -1,6 +1,8 @@
 # `Dash`-based query stats plotter for `pi-hole` data
 
-## Instructions
+![](https://raw.githubusercontent.com/pi-hole/pi-hole/master/demo/demo.png)
+
+## Usage
 
 1. Put the `pi-hole` longterm database file (typically called "pihole-FTL.db") in the current directory.
 2. Create and activate python virtual environment locally, and install all the requirements:

@@ -41,6 +41,7 @@ external_stylesheets = [
 
 class Plotter:
     def __init__(self, fname: str) -> None:
+        self.pihole_data = None
         self.loadData(fname)
         
         self.status_checklist = dash.html.Div([
