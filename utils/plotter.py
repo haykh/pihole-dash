@@ -21,6 +21,9 @@ layout_plotly = go.Layout(
         'gridcolor': 'rgba(255,255,255,0.25)',
     },
     uirevision='constant',
+    modebar= {
+        'orientation': 'v'
+    }
 )
 external_stylesheets = [
     {
@@ -43,22 +46,31 @@ class Plotter:
     def __init__(self, fname: str) -> None:
         self.pihole_data = None
         self.loadData(fname)
-        
+
         self.status_checklist = dash.html.Div([
             dash.dcc.Checklist(
                 self.pihole_data.allStatuses(),
                 self.pihole_data.allStatuses(),
-                inline=True, id="status-check")
-        ], className="checklist")
+                inline=True, className="checklist", id="status-check"),
+            dash.html.Span([
+                "Query status",
+            ]),
+        ])
 
         self.type_checklist = dash.html.Div([
             dash.dcc.Checklist(
                 self.pihole_data.allTypes(),
                 self.pihole_data.allTypes(),
-                inline=True, id="type-check")
-        ], className="checklist", id="type-checklist")
+                inline=True, className="checklist", id="type-check"),
+            dash.html.Span([
+                "Query types",
+            ]),
+        ], id="type-checklist")
 
         self.client_dropdown = dash.html.Div([
+            dash.html.Span([
+                "Clients",
+            ]),
             dash.dcc.Dropdown(
                 self.pihole_data.allClients(),
                 self.pihole_data.allClients(),
@@ -68,7 +80,7 @@ class Plotter:
             )
         ], className="multi-dropdown")
         self.graph = dash.dcc.Graph(id='graph', config={'displaylogo': False})
-    
+
     def __del__(self) -> None:
         del self.pihole_data
         del self.app
@@ -76,22 +88,25 @@ class Plotter:
         del self.client_dropdown
         del self.status_checklist
         del self.type_checklist
-        
+
     def loadData(self, fname: str) -> None:
         del self.pihole_data
         self.pihole_data = QueryData(fname)
 
-    def deploy(self, debug: bool=False, port: int=8050) -> None:
+    def deploy(self, debug: bool = False, port: int = 8050) -> None:
         self.app = dash.Dash(
             __name__, external_stylesheets=external_stylesheets)
         self.app.layout = dash.html.Div([
             dash.html.Div([
-                self.client_dropdown,
                 self.status_checklist,
                 self.type_checklist
-            ], id="toolbar"),
+            ], className="toolbar"),
             self.graph,
+            dash.html.Div([
+                self.client_dropdown,
+            ], className="toolbar")
         ])
+
         @self.app.callback(
             dash.Output('graph', 'figure'),
             dash.Input('status-check', 'value'),
@@ -105,7 +120,9 @@ class Plotter:
             )
             types = [query_lookup_r[t] for t in type_value]
             self.pihole_data.filter(clients, statuses, types)
-            fig = px.bar(x=self.pihole_data.agg[0], y=self.pihole_data.agg[1],)
+            labels = dict(x="date", y="# of queries")
+            fig = px.bar(
+                x=self.pihole_data.agg[0], y=self.pihole_data.agg[1], labels=labels)
             fig.update_layout(layout_plotly)
             return fig
         pio.templates.default = 'plotly_dark'
